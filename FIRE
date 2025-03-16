@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>智能退休规划工具</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://unpkg.com/element-plus"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+  <style>
+    .container { max-width: 800px; margin: 2rem auto; padding: 20px; }
+    .input-section { background: #f5f7fa; padding: 20px; border-radius: 8px; }
+    .result-card { margin-top: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="container">
+      <h1>退休规划计算器</h1>
+      
+      <!-- 输入区域 -->
+      <div class="input-section">
+        <el-form label-width="120px">
+          <el-form-item label="当前年龄">
+            <el-input-number v-model="currentAge" :min="20" :max="70"/>
+          </el-form-item>
+          <el-form-item label="计划退休年龄">
+            <el-input-number v-model="retirementAge" :min="40" :max="80"/>
+          </el-form-item>
+          <el-button type="primary" @click="calculate">立即计算</el-button>
+        </el-form>
+      </div>
+
+      <!-- 结果展示 -->
+      <div class="result-card" v-if="result">
+        <h3>目标流动资产: {{ result.targetAsset.toLocaleString() }} 元</h3>
+        <div id="chart" style="height: 300px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue
+    const app = createApp({
+      data() {
+        return {
+          currentAge: 42,
+          retirementAge: 55,
+          result: null
+        }
+      },
+      methods: {
+        calculate() {
+          // 核心计算逻辑
+          const workingYears = this.retirementAge - this.currentAge
+          const targetAsset = Math.pow(1.05, workingYears) * 1000000 // 示例公式
+          
+          this.result = { targetAsset }
+          this.renderChart()
+        },
+        renderChart() {
+          const chart = echarts.init(document.getElementById('chart'))
+          chart.setOption({
+            xAxis: { type: 'category', data: ['当前资产', '目标资产'] },
+            yAxis: { type: 'value' },
+            series: [{ data: [2000000, this.result.targetAsset], type: 'bar' }]
+          })
+        }
+      }
+    })
+    app.use(ElementPlus)
+    app.mount('#app')
+  </script>
+</body>
+</html>
